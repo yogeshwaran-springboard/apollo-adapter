@@ -1,9 +1,10 @@
 import React from "react";
-import { MockedProvider } from "@apollo/react-testing";
+import { MockedProvider, MockedResponse } from "@apollo/react-testing";
 import { renderHook } from "@testing-library/react-hooks";
 import { useRestQuery } from "../../hooks/query";
 import { Client } from "../..";
-import { gql } from "@apollo/client";
+import { DocumentNode, gql } from "@apollo/client";
+import { MockWrapper } from "../../types";
 const config = {
   rest: {
     typePatcher: {
@@ -62,20 +63,20 @@ describe("useRestQuery custom hook", () => {
     },
   };
 
-  const todosQueryErrorMock: any = {
+  const todosQueryErrorMock = {
     request: {
       query: GET_REST_TODOS_ERROR,
     },
     error: new Error("error"),
   };
 
-  function getHookWrapper(mocks = [], query: any) {
+  function getHookWrapper(mocks: MockedResponse[] = [], query: DocumentNode) {
     const { create: createForDomain1 } = Client();
     createForDomain1({
       config,
       domain: "Page 1",
     });
-    const wrapper = ({ children }: any) => (
+    const wrapper = ({ children }: MockWrapper) => (
       <MockedProvider mocks={mocks} addTypename={false}>
         {children}
       </MockedProvider>
@@ -91,7 +92,7 @@ describe("useRestQuery custom hook", () => {
 
   it("useRestQuery should return an array of todos", async () => {
     const { result, waitForNextUpdate } = getHookWrapper(
-      [todosQueryMock] as any,
+      [todosQueryMock] as MockedResponse[],
       GET_REST_TODOS
     );
 

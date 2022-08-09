@@ -1,13 +1,14 @@
 import React from "react";
-import { MockedProvider } from "@apollo/react-testing";
+import { MockedProvider, MockedResponse } from "@apollo/react-testing";
 import { renderHook, act } from "@testing-library/react-hooks";
 import { useRestLazyQuery, useRestQuery } from "../../hooks/query";
 import { Client } from "../..";
-import { gql } from "@apollo/client";
+import { DocumentNode, gql } from "@apollo/client";
+import { MockWrapper, OptionsType } from "../../types";
 const config = {
   rest: {
     typePatcher: {
-      Todo: (data: any) => {
+      Todo: (data: OptionsType) => {
         if (data.user != null) {
           data.user = { __typename: "User", ...data.user };
         }
@@ -62,20 +63,20 @@ describe("useRestLazyQuery custom hook", () => {
     },
   };
 
-  const todosQueryErrorMock: any = {
+  const todosQueryErrorMock = {
     request: {
       query: GET_REST_TODOS_ERROR,
     },
     error: new Error("error"),
   };
 
-  function getHookWrapper(mocks = [], query: any): any {
+  function getHookWrapper(mocks: MockedResponse[] = [], query: DocumentNode) {
     const { create: createForDomain1 } = Client();
     createForDomain1({
       config,
       domain: "Page 1",
     });
-    const wrapper = ({ children }: any) => (
+    const wrapper = ({ children }: MockWrapper) => (
       <MockedProvider mocks={mocks} addTypename={false}>
         {children}
       </MockedProvider>
@@ -95,7 +96,7 @@ describe("useRestLazyQuery custom hook", () => {
   }
   it("useRestLazyQuery should return an array of todos", async () => {
     const { result, waitForNextUpdate } = getHookWrapper(
-      [todosQueryMock] as any,
+      [todosQueryMock] as MockedResponse[],
       GET_REST_TODOS
     );
 
@@ -108,7 +109,7 @@ describe("useRestLazyQuery custom hook", () => {
 
   it("useRestLazyQuery should return error when request fails", async () => {
     const { result, waitForNextUpdate } = getHookWrapper(
-      [todosQueryErrorMock] as any,
+      [todosQueryErrorMock] as MockedResponse[],
       GET_REST_TODOS_ERROR
     );
     await waitForNextUpdate();

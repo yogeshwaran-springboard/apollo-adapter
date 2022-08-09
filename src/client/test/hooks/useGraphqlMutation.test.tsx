@@ -1,14 +1,15 @@
 import React from "react";
-import { MockedProvider } from "@apollo/react-testing";
+import { MockedProvider, MockedResponse } from "@apollo/react-testing";
 import { renderHook, act } from "@testing-library/react-hooks";
 import { refetchGraphqlQuery, useGraphqlMutation } from "../../hooks/query";
 import { Client } from "../..";
-import { gql } from "@apollo/client";
+import { DocumentNode, gql } from "@apollo/client";
 import { GET_GRAPHQL_TODOS } from "../../../queries";
+import { MockWrapper, OptionsType } from "../../types";
 const config = {
   rest: {
     typePatcher: {
-      Todo: (data: any) => {
+      Todo: (data: OptionsType) => {
         if (data.user != null) {
           data.user = { __typename: "User", ...data.user };
         }
@@ -74,13 +75,13 @@ describe("useGraphqlMutation custom hook", () => {
     },
   };
 
-  function getHookWrapper(mocks = [], query: any): any {
+  function getHookWrapper(mocks:MockedResponse[] = [], query: DocumentNode) {
     const { create: createForDomain1 } = Client();
     createForDomain1({
       config,
       domain: "Page 1",
     });
-    const wrapper = ({ children }: any) => (
+    const wrapper = ({ children }: MockWrapper) => (
       <MockedProvider mocks={mocks} addTypename={false}>
         {children}
       </MockedProvider>
@@ -113,7 +114,7 @@ describe("useGraphqlMutation custom hook", () => {
   }
   it("useGraphqlMutation should return an array of todos", async () => {
     const { result, waitForNextUpdate } = getHookWrapper(
-      [todosQueryMock] as any,
+      [todosQueryMock] as MockedResponse[],
       ADD_TODO
     );
 

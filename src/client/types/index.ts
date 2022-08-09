@@ -9,6 +9,7 @@ import {
   QueryHookOptions,
   RefetchQueriesOptions,
 } from "@apollo/client";
+import { ReactNode } from "react";
 export type OptionsType = {
   [key: string]: any;
 };
@@ -101,4 +102,10 @@ export interface MockType {
   request:OptionsType,
   result:OptionsType
   error:OptionsType
+}
+export interface MockWrapper {
+  children:ReactNode,
+}
+export interface MockResult {
+  current:OptionsType[],
 }

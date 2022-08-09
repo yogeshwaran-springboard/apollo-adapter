@@ -7,9 +7,15 @@ const config = {
 };
 describe("Client Adapter", () => {
   it("verifies client access without creation should throw err", () => {
-    const { get } = Client();
-
-    expect(get(domain)).toThrowError();
+    try {
+      const { get } = Client();
+      expect(get(domain)).toThrowError();
+      fail();
+    } catch (e:any) {
+      expect(e.message).toBe(
+        "Error: There is no client for this domain: Use ClientManager.getInstance() to create instance first."
+      );
+    }
   });
   it("verifies client creation and access", () => {
     const { create, get } = Client();

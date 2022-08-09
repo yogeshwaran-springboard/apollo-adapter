@@ -1,9 +1,10 @@
 import React from "react";
-import { MockedProvider } from "@apollo/react-testing";
+import { MockedProvider, MockedResponse } from "@apollo/react-testing";
 import { renderHook } from "@testing-library/react-hooks";
 import { useGraphqlQuery } from "../../hooks/query";
 import { Client } from "../..";
-import { gql } from "@apollo/client";
+import { DocumentNode, gql } from "@apollo/client";
+import { MockWrapper } from "../../types";
 const config = {
   rest: {},
   graphql: {},
@@ -45,20 +46,20 @@ describe("useGraphqlQuery custom hook", () => {
     },
   };
 
-  const todosQueryErrorMock: any = {
+  const todosQueryErrorMock = {
     request: {
       query: GET_GRAPHQL_TODOS_ERROR,
     },
     error: new Error("error"),
   };
 
-  function getHookWrapper(mocks = [], query: any) {
+  function getHookWrapper(mocks: MockedResponse[] = [], query: DocumentNode) {
     const { create: createForDomain1 } = Client();
     createForDomain1({
       config,
       domain: "Page 1",
     });
-    const wrapper = ({ children }: any) => (
+    const wrapper = ({ children }: MockWrapper) => (
       <MockedProvider mocks={mocks} addTypename={false}>
         {children}
       </MockedProvider>
@@ -73,7 +74,7 @@ describe("useGraphqlQuery custom hook", () => {
   }
   it("useGraphqlQuery should return an array of todos", async () => {
     const { result, waitForNextUpdate } = getHookWrapper(
-      [todosQueryMock] as any,
+      [todosQueryMock] as MockedResponse[],
       GET_GRAPHQL_TODOS
     );
 
@@ -85,7 +86,7 @@ describe("useGraphqlQuery custom hook", () => {
 
   it("useGraphqlQuery should return error when request fails", async () => {
     const { result, waitForNextUpdate } = getHookWrapper(
-      [todosQueryErrorMock] as any,
+      [todosQueryErrorMock] as MockedResponse[],
       GET_GRAPHQL_TODOS_ERROR
     );
     await waitForNextUpdate();

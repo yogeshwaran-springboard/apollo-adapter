@@ -1,12 +1,14 @@
-import { MockedProvider } from "@apollo/react-testing";
+import { MockedProvider, MockedResponse } from "@apollo/react-testing";
 import { renderHook, act } from "@testing-library/react-hooks";
 import { useGraphqlLazyQuery } from "../../hooks/query";
 import { Client } from "../..";
 import { DocumentNode, gql } from "@apollo/client";
+import { MockResult, MockWrapper, OptionsType } from "../../types";
+
 const config = {
   rest: {
     typePatcher: {
-      Todo: (data: any) => {
+      Todo: (data: OptionsType) => {
         if (data.user != null) {
           data.user = { __typename: "User", ...data.user };
         }
@@ -59,13 +61,13 @@ describe("useGraphqlLazyQuery custom hook", () => {
     error: new Error("error"),
   };
 
-  function getHookWrapper(mocks = [], query: DocumentNode) {
+  function getHookWrapper(mocks: MockedResponse[] = [], query: DocumentNode) {
     const { create: createForDomain1 } = Client();
     createForDomain1({
       config,
       domain: "Page 1",
     });
-    const wrapper = ({ children }: any) => (
+    const wrapper = ({ children }: MockWrapper) => (
       <MockedProvider mocks={mocks} addTypename={false}>
         {children}
       </MockedProvider>
@@ -84,7 +86,7 @@ describe("useGraphqlLazyQuery custom hook", () => {
   }
   it("useGraphqlLazyQuery should return an array of todos", async () => {
     const { result, waitForNextUpdate } = getHookWrapper(
-      [todosQueryMock] as any,
+      [todosQueryMock] as MockedResponse[],
       GET_GRAPHQL_TODOS
     );
 
@@ -97,7 +99,7 @@ describe("useGraphqlLazyQuery custom hook", () => {
 
   it("useGraphqlLazyQuery should return error when request fails", async () => {
     const { result, waitForNextUpdate } = getHookWrapper(
-      [todosQueryErrorMock] as any,
+      [todosQueryErrorMock] as MockedResponse[],
       GET_GRAPHQL_TODOS_ERROR
     );
     await waitForNextUpdate();
