@@ -1,8 +1,7 @@
 import { MockedProvider, MockedResponse } from "@apollo/react-testing";
-import { renderHook } from "@testing-library/react-hooks";
-import { useGraphqlQuery } from "../../hooks/query";
-import { MockWrapper } from "../../types";
+import { renderHook, act } from "@testing-library/react-hooks";
 import { GET_GRAPHQL_TODOS } from "../../../queries";
+import { useGraphqlLazyQuery } from "../../hooks/query";
 
 const successMock = [
   {
@@ -48,39 +47,45 @@ const errorMock = [
     error: new Error("ERROR"),
   },
 ];
-
-describe("useGraphqlQuery custom hook", () => {
-  function getHookWrapper(mocks: MockedResponse[] = []) {
-    const wrapper = ({ children }: MockWrapper) => (
+describe("useGraphqlLazyQuery custom hook", () => {
+  function getHookWrapper(mocks:MockedResponse[] = []) {
+    const wrapper = ({ children }: any) => (
       <MockedProvider mocks={mocks} addTypename={false}>
         {children}
       </MockedProvider>
     );
     const { result, waitForNextUpdate } = renderHook(
-      () => useGraphqlQuery(GET_GRAPHQL_TODOS, { domain: "Page 1" }),
+      () => useGraphqlLazyQuery(GET_GRAPHQL_TODOS, { domain: "Page 1" }),
       {
         wrapper,
       }
     );
+    const fetch: any = result.current;
+    act(() => {
+      fetch[0]();
+    });
     return { result, waitForNextUpdate };
   }
-  it("useGraphqlQuery should return an array of todos", async () => {
-    const { result, waitForNextUpdate } = getHookWrapper(successMock);
+  it("useGraphqlLazyQuery should return an array of todos", async () => {
+    const { result, waitForNextUpdate } = getHookWrapper(
+      successMock as MockedResponse[]
+    );
 
     await waitForNextUpdate();
-    expect(result.current.loading).toBeFalsy();
-    expect(result.current.error).toBeUndefined();
-    console.log(result.current.data.getTodos);
-    expect(result.current.data.getTodos).toBeDefined();
+    expect(typeof result.current[0]).toBe("function");
+    expect(result.current[1].loading).toBeFalsy();
+    expect(result.current[1].error).toBeUndefined();
+    expect(result.current[1].data.getTodos).toBeDefined();
   });
 
-  it("useGraphqlQuery should return error when request fails", async () => {
+  it("useGraphqlLazyQuery should return error when request fails", async () => {
     const { result, waitForNextUpdate } = getHookWrapper(
       errorMock as MockedResponse[]
     );
     await waitForNextUpdate();
-    expect(result.current.loading).toBeFalsy();
-    expect(result.current.error).toBeTruthy();
-    expect(result.current.data).toBeUndefined();
+    expect(typeof result.current[0]).toBe("function");
+    expect(result.current[1].loading).toBeFalsy();
+    expect(result.current[1].error).toBeTruthy();
+    expect(result.current[1].data).toBeUndefined();
   });
 });

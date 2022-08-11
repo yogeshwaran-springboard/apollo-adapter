@@ -2,12 +2,12 @@ import { MockedProvider, MockedResponse } from "@apollo/react-testing";
 import { renderHook } from "@testing-library/react-hooks";
 import { useGraphqlQuery } from "../../hooks/query";
 import { MockWrapper } from "../../types";
-import { GET_GRAPHQL_TODOS } from "../../../queries";
+import { GET_GRAPHQL_TODOS, GET_REST_TODOS } from "../../../queries";
 
 const successMock = [
   {
     request: {
-      query: GET_GRAPHQL_TODOS,
+      query: GET_REST_TODOS,
     },
     result: {
       data: {
@@ -43,13 +43,13 @@ const successMock = [
 const errorMock = [
   {
     request: {
-      query: GET_GRAPHQL_TODOS,
+      query: GET_REST_TODOS,
     },
     error: new Error("ERROR"),
   },
 ];
 
-describe("useGraphqlQuery custom hook", () => {
+describe("useRestQuery custom hook", () => {
   function getHookWrapper(mocks: MockedResponse[] = []) {
     const wrapper = ({ children }: MockWrapper) => (
       <MockedProvider mocks={mocks} addTypename={false}>
@@ -57,14 +57,14 @@ describe("useGraphqlQuery custom hook", () => {
       </MockedProvider>
     );
     const { result, waitForNextUpdate } = renderHook(
-      () => useGraphqlQuery(GET_GRAPHQL_TODOS, { domain: "Page 1" }),
+      () => useGraphqlQuery(GET_REST_TODOS, { domain: "Page 1" }),
       {
         wrapper,
       }
     );
     return { result, waitForNextUpdate };
   }
-  it("useGraphqlQuery should return an array of todos", async () => {
+  it("useRestQuery should return an array of todos", async () => {
     const { result, waitForNextUpdate } = getHookWrapper(successMock);
 
     await waitForNextUpdate();
@@ -74,7 +74,7 @@ describe("useGraphqlQuery custom hook", () => {
     expect(result.current.data.getTodos).toBeDefined();
   });
 
-  it("useGraphqlQuery should return error when request fails", async () => {
+  it("useRestQuery should return error when request fails", async () => {
     const { result, waitForNextUpdate } = getHookWrapper(
       errorMock as MockedResponse[]
     );
