@@ -2,13 +2,14 @@ import React from "react";
 import { MockedProvider, MockedResponse } from "@apollo/react-testing";
 import { renderHook } from "@testing-library/react-hooks";
 import { useGraphqlQuery } from "../../hooks/query";
-import { Client } from "../..";
 import { DocumentNode, gql } from "@apollo/client";
 import { MockWrapper } from "../../types";
+import { create } from "../../helpers/createClient";
+import { ClientManager } from "../../clientManger";
 const config = {
-  rest: {},
-  graphql: {},
-  cache: {},
+  restConfig: {},
+  graphqlConfig: {},
+  cacheConfig: {},
 };
 describe("useGraphqlQuery custom hook", () => {
   const GET_GRAPHQL_TODOS = gql`
@@ -54,10 +55,10 @@ describe("useGraphqlQuery custom hook", () => {
   };
 
   function getHookWrapper(mocks: MockedResponse[] = [], query: DocumentNode) {
-    const { create: createForDomain1 } = Client();
-    createForDomain1({
+    create({
       config,
-      domain: "Page 1",
+      domain:"Page 1",
+      manager: ClientManager.getInstance(),
     });
     const wrapper = ({ children }: MockWrapper) => (
       <MockedProvider mocks={mocks} addTypename={false}>

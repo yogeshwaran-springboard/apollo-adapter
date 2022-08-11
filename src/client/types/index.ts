@@ -10,36 +10,32 @@ import {
   RefetchQueriesOptions,
 } from "@apollo/client";
 import { ReactNode } from "react";
+import { ClientManager } from "../clientManger";
 export type OptionsType = {
   [key: string]: any;
 };
 
-export interface Client {
+export interface ClientDetails {
   restClient: ApolloClient<any>;
   graphqlClient: ApolloClient<any>;
   sharedCache: ApolloCache<NormalizedCacheObject>;
   domain: string;
 }
 
-export interface ClientConfig {
+export interface DomainConfig {
   restConfig: OptionsType;
   graphqlConfig: OptionsType;
   cacheConfig: OptionsType;
+}
+
+export interface ClientConfig extends DomainConfig {
   domain: string;
 }
 
-export interface DomainsConfig {
-  [domain: string]: ClientConfig;
-}
-export interface DomainConfig {
-  rest: OptionsType;
-  graphql: OptionsType;
-  cache: OptionsType;
-}
-
-export interface ClientPolicies {
+export interface ClientCreateType {
   config: DomainConfig;
   domain: string;
+  manager: ClientManager
 }
 export interface QueryOptions {
   domain: string;
@@ -99,13 +95,13 @@ export interface ModifyCacheOptions extends Cache.ModifyOptions {
   domain: string;
 }
 export interface MockType {
-  request:OptionsType,
-  result:OptionsType
-  error:OptionsType
+  request: OptionsType;
+  result: OptionsType;
+  error: OptionsType;
 }
 export interface MockWrapper {
-  children:ReactNode,
+  children: ReactNode;
 }
 export interface MockResult {
-  current:OptionsType[],
+  current: OptionsType[];
 }

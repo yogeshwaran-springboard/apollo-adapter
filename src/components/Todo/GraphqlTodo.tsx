@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 
 import { DELETE_REST, GET_REST_TODOS, UPDATE_TODO_REST } from "../../queries";
 import { useRestMutation } from "../../client/hooks/query";
@@ -8,12 +8,15 @@ import {
   readCache,
   writeCache,
 } from "../../client/helpers/cache";
-import { domain } from "../../configs/domain1";
+import { domain, reactiveVar1 } from "../../configs/domain1";
 
-export const GraphqlTodo = ({ data }: any) => {
+export const GraphqlTodo = memo(({ data }: any) => {
   const [editable, setEditable] = useState(null as any);
   const [selectedTodo, setSelectedTodo] = useState({} as any);
   const [toDeleteId, setToDeleteId] = useState(null as any);
+  const { comp1 } = reactiveVar1();
+  console.log("REEEEof Gr")
+
   // edit
   const [updateTodo] = useRestMutation(UPDATE_TODO_REST, {
     domain,
@@ -70,6 +73,7 @@ export const GraphqlTodo = ({ data }: any) => {
     ({ id, title, completed, description, user }: any) =>
       editable !== id ? (
         <div key={id}>
+          <b>{comp1}</b>
           <p>
             <b>Id: </b>
             {id}
@@ -155,4 +159,4 @@ export const GraphqlTodo = ({ data }: any) => {
         </div>
       )
   );
-};
+});

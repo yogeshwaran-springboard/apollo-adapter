@@ -29,6 +29,7 @@ const GET_GRAPHQL_TODOS = gql`
         age
       }
     }
+    reactiveVar1 @client
   }
 `;
 const ADD_TODO = gql`
@@ -76,7 +77,7 @@ const ADD_TODO_REST = gql`
 const ADD_USER_REST = gql`
   mutation CreateUser {
     createUser(input: $input)
-      @rest(type: "User", path: "/users", method: "POST"  bodyKey: "input") {
+      @rest(type: "User", path: "/users", method: "POST", bodyKey: "input") {
       name
       age
     }

@@ -1,6 +1,19 @@
+import { makeVar } from "@apollo/client";
+
+export const darkModeVar = makeVar<boolean>(false);
+export interface rc {
+  comp1: string;
+  comp2: string;
+}
+const initval = {
+  comp1: "A",
+  comp2: "B",
+};
+export const reactiveVar1 = makeVar<any>(initval);
+
 export const domain = "Page 1";
 export const config = {
-  rest: {
+  restConfig: {
     typePatcher: {
       Todo: (data: any) => {
         try {
@@ -9,15 +22,25 @@ export const config = {
           }
           return data;
         } catch (e) {
-            console.error("eeeeee",e)
+          console.error("eeeeee", e);
         }
       },
     },
   },
-  cache: {
+  cacheConfig: {
     typePolicies: {
       Query: {
         fields: {
+          // darkMode: {
+          //   read() {
+          //     return darkModeVar();
+          //   },
+          // },
+          reactiveVar1: {
+            read() {
+              return reactiveVar1();
+            },
+          },
           getTodo: {
             read(_: any, { args, toReference }: any) {
               return toReference({
@@ -38,5 +61,5 @@ export const config = {
       },
     },
   },
-  graphql: {},
+  graphqlConfig: {},
 };

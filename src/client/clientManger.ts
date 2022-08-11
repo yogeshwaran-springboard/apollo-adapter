@@ -1,29 +1,41 @@
-import { ClientBuilder } from "./clientBuilder";
-import { Client, ClientConfig } from "./types";
+import { Client } from "./client";
+import { ClientDetails, ClientConfig, DomainConfig } from "./types";
 
 export class ClientManager {
-  private static client: ClientManager;
-  private domains: Client[];
+  private static manager: ClientManager;
+  private domains: ClientDetails[];
 
   private constructor() {
     this.domains = [];
-    if (ClientManager.client) {
+    if (ClientManager.manager) {
       throw new Error(
         "Error: Problem in instance creation: Use ClientManager.getInstance() to create instance initially."
       );
     }
-    ClientManager.client = this;
+    ClientManager.manager = this;
   }
 
   public static getInstance(): ClientManager {
-    if (!ClientManager.client) {
-      ClientManager.client = new ClientManager();
+    if (!ClientManager.manager) {
+      ClientManager.manager = new ClientManager();
     }
 
-    return ClientManager.client;
+    return ClientManager.manager;
   }
 
-  public addDomain({ graphqlClient, restClient, sharedCache, domain }: Client) {
+  public getDomainClient(domain: string) {
+    const isRegistered =
+      this.domains.length &&
+      this.domains.find((data: ClientDetails) => data?.domain === domain);
+    return isRegistered as ClientDetails;
+  }
+
+  public addDomainClient({
+    graphqlClient,
+    restClient,
+    sharedCache,
+    domain,
+  }: ClientDetails) {
     this.domains = [
       ...this.domains,
       {
@@ -33,61 +45,5 @@ export class ClientManager {
         graphqlClient,
       },
     ];
-  }
-
-  public registerClient({
-    domain,
-    restConfig,
-    graphqlConfig,
-    cacheConfig,
-  }: ClientConfig) {
-    try {
-      const builder = ClientBuilder.getInstance({
-        domain,
-        restConfig,
-        graphqlConfig,
-        cacheConfig,
-      });
-      const { graphqlClient, restClient, sharedCache } = builder.createClient();
-
-      this.addDomain({ domain, restClient, sharedCache, graphqlClient });
-      return { graphqlClient, restClient, sharedCache };
-    } catch (e) {
-      throw new Error(
-        `Error: Problem in registering client: ${e} - Try using ClientManager.getInstance() first to create instance initially."
-      );`
-      );
-    }
-  }
-  public createClient({
-    cacheConfig,
-    graphqlConfig,
-    restConfig,
-    domain,
-  }: ClientConfig) {
-    const existingClient = this.isRegisteredClient(domain);
-    if (!existingClient) {
-      return this.registerClient({
-        domain,
-        restConfig,
-        graphqlConfig,
-        cacheConfig,
-      });
-    }
-    return existingClient;
-  }
-  private isRegisteredClient(domain: string) {
-    const isRegistered =
-      this.domains.length &&
-      this.domains.find((data: Client) => data?.domain === domain);
-    return isRegistered;
-  }
-  public getClient(domain: string) {
-    const existingClient = this.isRegisteredClient(domain);
-    if (existingClient) return existingClient;
-    else
-      throw new Error(
-        "Error: There is no client for this domain: Use ClientManager.getInstance() to create instance first."
-      );
   }
 }

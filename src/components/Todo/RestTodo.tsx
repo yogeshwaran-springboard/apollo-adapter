@@ -1,5 +1,6 @@
 import { useMutation } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
+import { reactiveVar1 } from "../../configs/domain1";
 import {
   DELETE_GRAPHQL,
   DELETE_REST,
@@ -8,14 +9,17 @@ import {
   UPDATE_TODO,
 } from "../../queries";
 
-export const RestTodo = ({ data }: any) => {
+export const RestTodo = memo(({ data }: any) => {
   const [editable, setEditable] = useState(null);
   const [selectedTodo, setSelectedTodo] = useState({});
   const [toDeleteId, setToDeleteId] = useState(null);
+  const {  comp2 } = reactiveVar1();
+  console.log("REEEEof Rest")
 
   return data?.getTodos?.map(
     ({ id, title, completed, description, user }: any) => (
       <div key={title}>
+            <b>{comp2}</b>
         <p>
           <b>Id: </b>
           {id}
@@ -42,4 +46,4 @@ export const RestTodo = ({ data }: any) => {
       </div>
     )
   );
-};
+});
